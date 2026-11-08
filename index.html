@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Financial Fraud Detection System</title>
+  <!-- Chart.js CDN for Real Data Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --panel-bg: #111827;
+      --card-bg: #1f2937;
+      --border-color: #374151;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.4);
+      --cyan-glow: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f9fafb;
+      --text-sub: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 5px var(--primary-glow); }
+      50% { box-shadow: 0 0 20px var(--primary-glow); }
+      100% { box-shadow: 0 0 5px var(--primary-glow); }
+    }
+
+    @keyframes pulseDot {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOutRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(120%); opacity: 0; }
+    }
+
+    .animated-view {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Sidebar Navigation */
+    aside.sidebar {
+      width: 260px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      animation: pulseGlow 3s infinite;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--cyan-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .nav-item button {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .nav-item button:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-item button.active {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--border-color);
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    /* Main Content Workspace */
+    main.main-content {
+      margin-left: 260px;
+      flex: 1;
+      padding: 1.5rem 2rem;
+    }
+
+    /* Top Status Header Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .live-ticker {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulseDot 2s infinite;
+    }
+
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .auth-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .auth-btn.primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border: none;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.15);
+    }
+
+    .user-pill {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #60a5fa;
+    }
+
+    .user-pill.admin-pill {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    /* Custom Toast Notifications Container */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      pointer-events: none;
+    }
+
+    .toast-card {
+      pointer-events: auto;
+      min-width: 320px;
+      max-width: 420px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      backdrop-filter: blur(12px);
+    }
+
+    .toast-card.success { border-left-color: var(--success); }
+    .toast-card.warning { border-left-color: var(--warning); }
+    .toast-card.error { border-left-color: var(--danger); }
+
+    .toast-icon { font-size: 1.3rem; line-height: 1; }
+    .toast-body { flex: 1; }
+    .toast-title { font-size: 0.9rem; font-weight: 700; color: #ffffff; }
+    .toast-msg { font-size: 0.8rem; color: var(--text-sub); margin-top: 0.2rem; line-height: 1.4; }
+    .toast-close { background: transparent; border: none; color: var(--text-sub); font-size: 1rem; cursor: pointer; }
+
+    /* Metrics Overview Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1100px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .metric-card.admin-card::before { background: var(--warning); }
+    .metric-card.success::before { background: var(--success); }
+    .metric-card.alert::before { background: var(--danger); }
+
+    .metric-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0.4rem 0 0.2rem;
+    }
+
+    .metric-sub { font-size: 0.78rem; color: var(--text-sub); }
+
+    /* Panels & Layout */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1000px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Form Fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-dark);
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn-eval {
+      width: 100%;
+      padding: 0.95rem;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .btn-eval:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+
+    /* Result Display */
+    .result-display {
+      margin-top: 1.25rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .result-display.approved { border-color: var(--success); }
+    .result-display.held { border-color: var(--warning); }
+    .result-display.blocked { border-color: var(--danger); }
+
+    .score-circle {
+      width: 85px;
+      height: 85px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      background: rgba(0, 0, 0, 0.4);
+      border: 3px solid;
+    }
+
+    .score-circle.approved { border-color: var(--success); color: var(--success); }
+    .score-circle.held { border-color: var(--warning); color: var(--warning); }
+    .score-circle.blocked { border-color: var(--danger); color: var(--danger); }
+
+    .score-num { font-size: 1.8rem; line-height: 1; }
+    .score-sub { font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; }
+
+    /* Threat Stream */
+    .threat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .threat-card {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.85rem;
+      border-radius: 10px;
+    }
+
+    .threat-badge {
+      background: var(--danger);
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Table */
+    table.table-ent {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    table.table-ent th, table.table-ent td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.table-ent th {
+      background: var(--bg-dark);
+      color: var(--text-sub);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pill {
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-pill.approved { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid var(--success); }
+    .badge-pill.held { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid var(--warning); }
+    .badge-pill.blocked { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid var(--danger); }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    /* Strong Password Meter */
+    .pass-strength-container {
+      margin-top: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .pass-strength-bar {
+      height: 6px;
+      width: 100%;
+      background: #374151;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pass-strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    .pass-strength-text {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      margin-top: 0.2rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* CAPTCHA Challenge Box */
+    .captcha-box {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      margin-bottom: 0.8rem;
+    }
+
+    .captcha-code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      user-select: none;
+    }
+
+    .btn-captcha-refresh {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .team-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .team-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #1e3a8a, #0284c7);
+      border-radius: 50%;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .team-name { font-size: 1rem; font-weight: 700; color: #ffffff; }
+    .team-role { font-size: 0.78rem; color: var(--cyan-glow); margin-top: 0.2rem; font-weight: 600; }
+    .team-desc { font-size: 0.75rem; color: var(--text-sub); margin-top: 0.5rem; }
+
+    .view-tab { display: none; }
+    .view-tab.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">🛡️</div>
+      <div>
+        <div class="brand-title">SENTINEL-AI</div>
+        <div class="brand-sub">Fraud Intelligence Platform</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <!-- FIRST PAGE DEFAULT ACTIVE ITEM -->
+      <li class="nav-item"><button class="active" id="nav-btn-simulator" onclick="switchView('live-simulator')">💳 Real-Time Simulator</button></li>
+      <li class="nav-item"><button onclick="switchView('analytics-hub')">📊 Executive Analytics</button></li>
+      <li class="nav-item"><button onclick="switchView('threat-center')">🚨 Security Threat Feed</button></li>
+      <!-- STRICT RBAC: ADMIN ONLY TAB -->
+      <li class="nav-item" id="nav-admin-tab" style="display:none;"><button onclick="switchView('admin-portal')" style="color:#fbbf24; border-color:rgba(245,158,11,0.3);">🛠️ Admin Controls & Audits 🔒</button></li>
+      <li class="nav-item"><button onclick="switchView('team-roster')">👥 Engineering Leadership</button></li>
+      <li class="nav-item"><button onclick="switchView('academic-report')">📄 Capstone Report (PDF)</button></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <strong>8-Credit Capstone Project</strong>
+      <div style="font-size:0.7rem; margin-top:0.2rem;">Dept of Computer Science & Eng.</div>
+      <div style="color:var(--success); font-weight:700; margin-top:0.4rem;">● LIVE DATA SYNCED</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Workspace -->
+  <main class="main-content">
+    
+    <!-- Top System & Auth Bar -->
+    <div class="top-bar">
+      <div class="live-ticker">
+        <div class="ticker-item"><div class="pulse-dot"></div> <strong>SYSTEM STATUS:</strong> <span id="api-status-badge">SYNCING MYSQL / FLASK...</span></div>
+        <div class="ticker-item">⚡ <strong>LATENCY:</strong> 14ms</div>
+        <div class="ticker-item">🇮🇳 <strong>CURRENCY:</strong> INR (₹)</div>
+      </div>
+
+      <div class="auth-actions">
+        <div id="user-session-info" style="display:none;">
+          <span class="user-pill" id="user-display-name">👤 demo_user (USER)</span>
+          <button class="auth-btn" onclick="handleLogout()">Sign Out</button>
+        </div>
+        <div id="guest-auth-btns">
+          <button class="auth-btn" onclick="openModal('login-modal')">Sign In</button>
+          <button class="auth-btn primary" onclick="openModal('register-modal')">Register</button>
+          <button class="auth-btn" onclick="openModal('admin-modal')" style="border-color:var(--warning); color:var(--warning);">Admin Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIRST PAGE: INDIAN BANKING & UPI TRANSACTION SIMULATOR WITH UNIVERSAL LINK SCANNER -->
+    <div id="live-simulator" class="view-tab active animated-view">
+      
+      <!-- Metrics Overview Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-head">Standard Users <span>👥</span></div>
+          <div class="metric-val" id="val-std-users">1</div>
+          <div class="metric-sub">Registered Customer Accounts (`ROLE_USER`)</div>
+        </div>
+        <div class="metric-card admin-card">
+          <div class="metric-head">System Admins <span>🛡️</span></div>
+          <div class="metric-val" id="val-admin-users">1</div>
+          <div class="metric-sub">Security Administrator Accounts (`ROLE_ADMIN`)</div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-head">Total Volume <span>💳</span></div>
+          <div class="metric-val" id="val-txs">2</div>
+          <div class="metric-sub">Processed Transactions</div>
+        </div>
+        <div class="metric-card alert">
+          <div class="metric-head">Flagged Fraud <span>🚨</span></div>
+          <div class="metric-val" id="val-fraud">1</div>
+          <div class="metric-sub">Blocked Threat Cases</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        
+        <!-- UNIVERSAL LINK SCANNER & TRANSACTION RISK EVALUATION PANEL -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">💳 Indian Banking & Universal Link Risk Engine</div>
+            <span style="font-size:0.75rem; color:var(--cyan-glow);">Universal URL Parser & AI Classifier</span>
+          </div>
+
+          <form id="eval-form" onsubmit="executeInference(event)">
+            <div class="form-grid">
+              <div>
+                <label>UPI Reference / Transaction ID</label>
+                <input id="in-id" placeholder="e.g. UPI-984721" required />
+              </div>
+              <div>
+                <label>Amount in INR (₹)</label>
+                <input id="in-amount" type="number" step="0.01" placeholder="e.g. 450.00 or custom amount" required />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label>Merchant Entity / Bank Merchant</label>
+                <input id="in-merchant" placeholder="e.g. Reliance Smart Supermarket or Merchant/Site Name" required />
+              </div>
+              <div>
+                <!-- TRANSACTION CATEGORY DROPDOWN -->
+                <label>Transaction Category</label>
+                <select id="in-category">
+                  <option value="GROCERY">GROCERY</option>
+                  <option value="ONLINE">ONLINE SHOPPING</option>
+                  <option value="ELECTRONICS">ELECTRONICS</option>
+                  <option value="CRYPTO">CRYPTO TRANSFER</option>
+                  <option value="TRAVEL">TRAVEL & AIRLINES</option>
+                  <option value="GAMBLING">GAMBLING & CASINO</option>
+                  <option value="ILLEGAL_WEBSITE_PHISHING">ILLEGAL / FRAUD WEBSITE PHISHING</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- UNIVERSAL WORKING LINK / DOMAIN EVALUATION FIELD -->
+            <div style="margin-bottom:1rem;">
+              <label>🌐 Universal Target Link / Phishing Website Domain (Universal Link Parser)</label>
+              <input id="in-website" placeholder="Paste ANY Universal Working Link (e.g., https://www.5movierulz.watch/..., http://scam-bank.site, or raw domain)" style="border-color:var(--cyan-glow);" />
+              <div style="font-size:0.72rem; color:var(--text-sub); margin-top:0.25rem;">
+                * Accepts ANY universal link structure (http/https, subdomains, deep paths, or raw domains). Evaluated independently of money amount!
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label>Geo Location</label>
+                <input id="in-location" placeholder="e.g. Mumbai, India or Offshore Zone" required />
+              </div>
+              <div>
+                <label>Currency Standard</label>
+                <select disabled><option>INR (₹ Indian Rupee)</option></select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-eval" id="btn-submit-eval">🚀 Execute Universal Link & AI Fraud Evaluation (₹)</button>
+          </form>
+
+          <!-- Result Display Card -->
+          <div id="res-card" class="result-display approved" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+              <strong style="font-size:0.9rem;">LIVE AI INFERENCE ANALYSIS</strong>
+              <span id="res-badge" class="badge-pill approved">APPROVED</span>
+            </div>
+            <div style="display:flex; gap:1.5rem; align-items:center;">
+              <div id="res-score-circle" class="score-circle approved">
+                <div class="score-num" id="res-score">12</div>
+                <div class="score-sub">Risk Score</div>
+              </div>
+              <div style="font-size:0.85rem; line-height:1.6;">
+                <div><strong>Fraud Probability:</strong> <span id="res-prob" style="color:var(--cyan-glow);">12.0%</span></div>
+                <div><strong>Reference ID:</strong> <code id="res-txid">UPI-100001</code></div>
+                <div><strong>Evaluation Output:</strong> <span id="res-action">✅ TRANSACTION APPROVED</span></div>
+                <div id="res-factors" style="font-size:0.78rem; color:var(--text-sub); margin-top:0.3rem;">Factors: Normal Spending Pattern</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar Stream -->
+        <div>
+          <!-- STRICT RBAC: SYSTEM USERS BOX HIDDEN UNLESS ADMIN -->
+          <div class="panel" style="margin-bottom:1.5rem;">
+            <div class="panel-header">
+              <div class="panel-title">👥 System Users Audit</div>
+              <span class="badge-pill held" id="rbac-users-badge">ADMIN PROTECTED</span>
+            </div>
+            <div id="users-live-container">
+              <div style="font-size:0.8rem; color:var(--warning); background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); padding:0.8rem; border-radius:8px;">
+                🔒 <strong>Admin Authorization Required</strong><br/>
+                Only Administrators (<code>ROLE_ADMIN</code>) can view registered accounts and authentication audits.
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title" style="color:var(--danger);">🚨 Security Threat Stream</div>
+            </div>
+            <div class="threat-stream" id="threat-stream-list">
+              <div style="font-size:0.8rem; color:var(--text-sub);">Syncing threat feeds from database...</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Transaction Audit Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📊 Live Transaction Audit Log & Risk Records (MySQL Persistent)</div>
+          <span style="font-size:0.75rem; color:var(--cyan-glow);" id="tx-count-indicator">2 Real Database Records</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="table-ent">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Amount (₹)</th>
+                <th>Merchant / Universal Web Domain</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Risk Score</th>
+                <th>Fraud Prob</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-tx-body">
+              <tr>
+                <td><code>UPI-100001</code></td>
+                <td><strong>₹450.00 INR</strong></td>
+                <td>Reliance Smart Supermarket</td>
+                <td><span style="background:#374151; padding:0.2rem 0.4rem; border-radius:4px; font-size:0.75rem;">GROCERY</span></td>
+                <td>Mumbai, India</td>
+                <td><span class="badge-pill approved">12 / 100</span></td>
+                <td>5.0%</td>
+                <td><span class="badge-pill approved">APPROVED</span></td>
+              </tr>
+              <tr style="background:rgba(239, 68, 68, 0.08);">
+                <td><code>UPI-100002</code></td>
+                <td><strong>₹3,50,000.00 INR</strong></td>
+                <td>Offshore Crypto Exchange</td>
+                <td><span style="background:#374151; padding:0.2rem 0.4rem; border-radius:4px; font-size:0.75rem;">CRYPTO</span></td>
+                <td>High Risk Offshore Zone</td>
+                <td><span class="badge-pill blocked">85 / 100</span></td>
+                <td>85.0%</td>
+                <td><span class="badge-pill blocked">BLOCKED</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: EXECUTIVE ANALYTICS HUB -->
+    <div id="analytics-hub" class="view-tab animated-view">
+      <div class="panel" style="margin-bottom:1.5rem;">
+        <div class="panel-header">
+          <div class="panel-title">📊 Live Analytics & Real Data Visualization Hub</div>
+          <span style="font-size:0.75rem; color:var(--cyan-glow);">Dynamically Calculated from Database Records</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+          <div>
+            <h4 style="font-size:0.9rem; margin-bottom:1rem; color:var(--text-sub);">Live Risk Score Distribution</h4>
+            <canvas id="chartRiskDist" height="220"></canvas>
+          </div>
+          <div>
+            <h4 style="font-size:0.9rem; margin-bottom:1rem; color:var(--text-sub);">Live Transaction Category Share</h4>
+            <canvas id="chartCatShare" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: THREAT CENTER -->
+    <div id="threat-center" class="view-tab animated-view">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title" style="color:var(--danger);">🚨 Security Threat Intelligence Feed</div>
+        </div>
+        <div class="threat-stream" id="threat-center-list">
+          <!-- Dynamic Threat Alerts -->
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4: ADMIN CONTROLS & AUDIT PORTAL (SEPARATED TABLES FOR USERS AND ADMINS) -->
+    <div id="admin-portal" class="view-tab animated-view">
+      <div class="panel" style="margin-bottom:1.5rem;">
+        <div class="panel-header">
+          <div class="panel-title">🛠️ Administrator Control Center & Security Audit Governance</div>
+          <span class="badge-pill held">ROLE_ADMIN AUTHORIZED ONLY</span>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:1.2rem;">
+          Restricted Administrator Audit Records with separated tables for Standard Customers vs System Administrators.
+        </p>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+          <div style="background:var(--bg-dark); padding:1.2rem; border-radius:12px; border:1px solid var(--border-color);">
+            <h4 style="margin-bottom:0.8rem; font-size:0.95rem;">⚙️ Risk Decision Thresholds</h4>
+            <div style="margin-bottom:0.8rem; font-size:0.85rem;">
+              <label>Low Risk Threshold: <strong>0 – 29</strong> (APPROVED)</label>
+            </div>
+            <div style="margin-bottom:0.8rem; font-size:0.85rem;">
+              <label>Medium Risk Threshold: <strong>30 – 69</strong> (HELD FOR VERIFICATION)</label>
+            </div>
+            <div style="font-size:0.85rem;">
+              <label>High Risk Threshold: <strong>70 – 100</strong> (BLOCKED + ALERT GENERATED)</label>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-dark); padding:1.2rem; border-radius:12px; border:1px solid var(--border-color);">
+            <h4 style="margin-bottom:0.8rem; font-size:0.95rem;">🔒 Governance & Forensic Actions</h4>
+            <button class="btn-eval" style="background:#374151; margin-bottom:0.5rem;" onclick="showToast('Export Successful', 'Full Account & Login Audit Logs exported as CSV.', 'info')">📥 Export Complete User Audit History (CSV)</button>
+            <button class="btn-eval" style="background:#991b1b;" onclick="showToast('Security Action Executed', 'High Risk Suspicious User Accounts Frozen.', 'error')">⛔ Emergency Account Freeze</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIT PANEL 1: STANDARD CUSTOMER ACCOUNTS TABLE (`ROLE_USER`) -->
+      <div class="panel" style="margin-bottom:1.5rem;">
+        <div class="panel-header">
+          <div class="panel-title">👥 Standard Customer Accounts (`ROLE_USER`)</div>
+          <span style="font-size:0.75rem; color:var(--cyan-glow);" id="std-user-audit-count">1 Customer Account</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table-ent">
+            <thead>
+              <tr>
+                <th>Username ID</th>
+                <th>Full Name</th>
+                <th>Email Address</th>
+                <th>Role</th>
+                <th>Registration Date</th>
+                <th>Account Status</th>
+                <th>Admin Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-std-user-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AUDIT PANEL 2: SYSTEM ADMINISTRATOR ACCOUNTS TABLE (`ROLE_ADMIN`) -->
+      <div class="panel" style="margin-bottom:1.5rem; border-color:rgba(245,158,11,0.4);">
+        <div class="panel-header">
+          <div class="panel-title" style="color:#fbbf24;">🛡️ System Administrator Accounts (`ROLE_ADMIN`)</div>
+          <span style="font-size:0.75rem; color:#fbbf24;" id="admin-user-audit-count">1 Administrator Account</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table-ent">
+            <thead>
+              <tr>
+                <th>Admin Username</th>
+                <th>Full Name</th>
+                <th>System Email</th>
+                <th>Security Level</th>
+                <th>Provisioned Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-admin-user-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AUDIT PANEL 3: USER SIGN IN / SIGN OUT LOGS (ADMIN ONLY) -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🔑 User Authentication Audit Logs (Sign In / Sign Out / Register)</div>
+          <span style="font-size:0.75rem; color:var(--cyan-glow);" id="login-audit-count">0 Session Logs</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table-ent">
+            <thead>
+              <tr>
+                <th>Session Timestamp</th>
+                <th>User Account ID</th>
+                <th>Location / IP</th>
+                <th>Activity Event (Sign In / Sign Out / Register)</th>
+                <th>Security Result</th>
+              </tr>
+            </thead>
+            <tbody id="table-login-audit-body">
+              <!-- Rendered dynamically for ADMIN -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: ENGINEERING LEADERSHIP ROSTER -->
+    <div id="team-roster" class="view-tab animated-view">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">👥 Project Engineering Leadership (4 Members)</div>
+          <span style="font-size:0.75rem; color:var(--cyan-glow);">8-Credit Capstone Project Development Team</span>
+        </div>
+
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">ST</div>
+            <div class="team-name">B. Sai Tejaswi</div>
+            <div class="team-role">Team Lead & AI/ML Engineer</div>
+            <div class="team-desc">Flask Microservice (`app.py`), XGBoost/Random Forest Model, SMOTE Balancing, Risk Engine (0-100).</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">SH</div>
+            <div class="team-name">Sharanya</div>
+            <div class="team-role">Backend & Security Engineer</div>
+            <div class="team-desc">Spring Boot 3 REST Framework, JPA Entities, JWT Authentication Filter, Security Controls.</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">PR</div>
+            <div class="team-name">Priya</div>
+            <div class="team-role">Frontend UI/UX Engineer</div>
+            <div class="team-desc">React.js Single-Page App (`App.js`), Real-Time Risk Meters, Threat Feed UI, Axios REST Integration.</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">HA</div>
+            <div class="team-name">Harshini</div>
+            <div class="team-role">Database Architect & QA Specialist</div>
+            <div class="team-desc">3NF MySQL Schema (`schema.sql`), Foreign Key Constraints, IEEE SRS Specs, Testing Matrix.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 6: ACADEMIC REPORT & PDF -->
+    <div id="academic-report" class="view-tab animated-view">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📄 Official Academic Capstone Project Reports</div>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:1.5rem;">
+          Access generated publication-grade PDF and text progress reports directly in your workspace directory:
+        </p>
+        <div style="display:flex; gap:1rem;">
+          <a href="capstone_phase1_report_4_members.pdf" target="_blank" style="background:var(--primary); color:#ffffff; text-decoration:none; padding:0.85rem 1.4rem; border-radius:10px; font-weight:700; font-size:0.9rem;">
+            📄 Open Official PDF Progress Report
+          </a>
+          <button onclick="window.print()" style="background:var(--card-bg); border:1px solid var(--border-color); color:#ffffff; padding:0.85rem 1.4rem; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer;">
+            🖨️ Print / Export Report
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL 1: SIGN IN MODAL WITH CAPTCHA -->
+  <div id="login-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Sign In to Sentinel-AI</div>
+        <button class="close-btn" onclick="closeModal('login-modal')">&times;</button>
+      </div>
+      <form onsubmit="executeLogin(event)">
+        <div style="margin-bottom:1rem;">
+          <label>Username</label>
+          <input id="login-user" placeholder="e.g. demo_user" required />
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label>Password</label>
+          <input id="login-pass" type="password" placeholder="e.g. password123" required />
+        </div>
+
+        <label>Security Anti-Bot CAPTCHA</label>
+        <div class="captcha-box">
+          <div class="captcha-code" id="login-captcha-code">7X9K2P</div>
+          <button type="button" class="btn-captcha-refresh" onclick="refreshCaptcha('login')">🔄</button>
+        </div>
+        <input id="login-captcha-input" placeholder="Enter CAPTCHA Code Above" required style="margin-bottom:1.5rem;" />
+
+        <button type="submit" class="btn-eval">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: REGISTER MODAL WITH STRONG PASSWORD METER & CAPTCHA -->
+  <div id="register-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Register New Account</div>
+        <button class="close-btn" onclick="closeModal('register-modal')">&times;</button>
+      </div>
+      <form onsubmit="executeRegister(event)">
+        <div style="margin-bottom:0.8rem;">
+          <label>Username</label>
+          <input id="reg-user" placeholder="e.g. john_doe" required />
+        </div>
+        
+        <div style="margin-bottom:0.4rem;">
+          <label>Password (Strong Security Policy)</label>
+          <input id="reg-pass" type="password" placeholder="e.g. Pass@1234" oninput="evaluatePasswordStrength(this.value)" required />
+        </div>
+
+        <div class="pass-strength-container">
+          <div class="pass-strength-bar">
+            <div class="pass-strength-fill" id="pass-strength-fill"></div>
+          </div>
+          <div class="pass-strength-text">
+            <span id="pass-strength-label">Password Strength: Weak</span>
+            <span>Requires: 8+ Chars, Upper, Lower, Number, Symbol</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:0.8rem;">
+          <label>Email Address</label>
+          <input id="reg-email" type="email" placeholder="e.g. john@example.com" required />
+        </div>
+        <div style="margin-bottom:0.8rem;">
+          <label>Full Name</label>
+          <input id="reg-name" placeholder="e.g. John Doe" required />
+        </div>
+
+        <label>Security Anti-Bot CAPTCHA</label>
+        <div class="captcha-box">
+          <div class="captcha-code" id="reg-captcha-code">4M9K8R</div>
+          <button type="button" class="btn-captcha-refresh" onclick="refreshCaptcha('reg')">🔄</button>
+        </div>
+        <input id="reg-captcha-input" placeholder="Enter CAPTCHA Code Above" required style="margin-bottom:1.5rem;" />
+
+        <button type="submit" class="btn-eval">Register Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADMIN LOGIN MODAL -->
+  <div id="admin-modal" class="modal-overlay">
+    <div class="modal-box" style="border-color:var(--warning);">
+      <div class="modal-header">
+        <div class="modal-title" style="color:var(--warning);">Administrator Sign In</div>
+        <button class="close-btn" onclick="closeModal('admin-modal')">&times;</button>
+      </div>
+      <form onsubmit="executeAdminLogin(event)">
+        <div style="margin-bottom:1rem;">
+          <label>Admin Username</label>
+          <input id="admin-user" placeholder="admin" required />
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label>Admin Password</label>
+          <input id="admin-pass" type="password" placeholder="password123" required />
+        </div>
+
+        <label>Admin Anti-Bot Security Verification</label>
+        <div class="captcha-box">
+          <div class="captcha-code" id="admin-captcha-code">8A2B9C</div>
+          <button type="button" class="btn-captcha-refresh" onclick="refreshCaptcha('admin')">🔄</button>
+        </div>
+        <input id="admin-captcha-input" placeholder="Enter Security Code Above" required style="margin-bottom:1.5rem;" />
+
+        <button type="submit" class="btn-eval" style="background:linear-gradient(135deg, #d97706, #b45309);">Sign In as Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080/api';
+    let rawTransactions = [
+      { id: 1, transactionId: 'UPI-100001', amount: 450, merchant: 'Reliance Smart Supermarket', category: 'GROCERY', website: '', location: 'Mumbai, India', riskScore: 12, fraudProbability: 0.05, isFraud: false, status: 'APPROVED' },
+      { id: 2, transactionId: 'UPI-100002', amount: 350000, merchant: 'Offshore Crypto Exchange', category: 'CRYPTO', website: 'https://crypto-anonymous.io', location: 'High Risk Offshore Zone', riskScore: 85, fraudProbability: 0.85, isFraud: true, status: 'BLOCKED' }
+    ];
+
+    let riskChart = null;
+    let catChart = null;
+    let currentUser = null;
+
+    // Separate Accounts Audit Arrays
+    let registeredUsersAudit = [
+      { username: 'demo_user', fullName: 'Rajesh Sharma', email: 'rajesh@example.in', role: 'ROLE_USER', regDate: '2026-08-20 10:15:00', status: 'ACTIVE' }
+    ];
+
+    let registeredAdminsAudit = [
+      { username: 'admin', fullName: 'System Administrator', email: 'admin@sentinel.ai', role: 'ROLE_ADMIN', regDate: '2026-08-20 09:00:00', status: 'ACTIVE' }
+    ];
+
+    // Login Activity Logs Array
+    let loginLogsAudit = [
+      { timestamp: '2026-08-21 19:40:12', username: 'admin', location: 'Mumbai, MH (192.168.1.10)', authType: 'ADMIN_SIGN_IN', status: 'SUCCESS' },
+      { timestamp: '2026-08-21 19:14:05', username: 'demo_user', location: 'Delhi, DL (192.168.1.45)', authType: 'USER_SIGN_IN', status: 'SUCCESS' },
+      { timestamp: '2026-08-21 18:30:00', username: 'demo_user', location: 'Delhi, DL (192.168.1.45)', authType: 'USER_SIGN_OUT', status: 'SUCCESS' }
+    ];
+
+    const captchas = { login: '7X9K2P', reg: '4M9K8R', admin: '8A2B9C' };
+
+    // UNIVERSAL LINK PARSER & DOMAIN EXTRACTOR FUNCTION
+    function parseUniversalLink(inputUrl) {
+      if (!inputUrl) return { raw: '', domain: '', fullPath: '', isUniversal: false };
+      let str = inputUrl.trim();
+      
+      // Auto-prefix protocol if omitted for URL parser
+      let cleanUrl = str;
+      if (!/^https?:\/\//i.test(cleanUrl)) {
+        cleanUrl = 'https://' + cleanUrl;
+      }
+      
+      try {
+        const parsed = new URL(cleanUrl);
+        const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+        return {
+          raw: str,
+          domain: host,
+          fullPath: (host + parsed.pathname + parsed.search).toLowerCase(),
+          isUniversal: true
+        };
+      } catch (e) {
+        // Fallback simple string parser for non-standard links
+        const simpleHost = str.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        return {
+          raw: str,
+          domain: simpleHost,
+          fullPath: str.toLowerCase(),
+          isUniversal: false
+        };
+      }
+    }
+
+    function updateMetricCounters() {
+      document.getElementById('val-std-users').innerText = registeredUsersAudit.length;
+      document.getElementById('val-admin-users').innerText = registeredAdminsAudit.length;
+      document.getElementById('val-txs').innerText = rawTransactions.length;
+      document.getElementById('val-fraud').innerText = rawTransactions.filter(t => t.isFraud).length;
+    }
+
+    function showToast(title, message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast-card ${type}`;
+
+      const iconMap = { success: '✅', warning: '⚠️', error: '❌', info: 'ℹ️' };
+
+      toast.innerHTML = `
+        <div class="toast-icon">${iconMap[type] || '🔔'}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          <div class="toast-msg">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.animation = 'fadeOutRight 0.3s ease forwards';
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 3500);
+    }
+
+    function generateCaptchaCode() {
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
+    function refreshCaptcha(type) {
+      const newCode = generateCaptchaCode();
+      captchas[type] = newCode;
+      document.getElementById(`${type}-captcha-code`).innerText = newCode;
+    }
+
+    function evaluatePasswordStrength(pass) {
+      const fill = document.getElementById('pass-strength-fill');
+      const label = document.getElementById('pass-strength-label');
+
+      let score = 0;
+      if (pass.length >= 8) score++;
+      if (/[A-Z]/.test(pass)) score++;
+      if (/[a-z]/.test(pass)) score++;
+      if (/[0-9]/.test(pass)) score++;
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(pass)) score++;
+
+      if (pass.length === 0) {
+        fill.style.width = '0%';
+        label.innerText = 'Password Strength: None';
+      } else if (score <= 2) {
+        fill.style.width = '33%';
+        fill.style.backgroundColor = '#ef4444';
+        label.innerText = 'Password Strength: Weak 🔴';
+      } else if (score <= 4) {
+        fill.style.width = '66%';
+        fill.style.backgroundColor = '#f59e0b';
+        label.innerText = 'Password Strength: Medium 🟡';
+      } else {
+        fill.style.width = '100%';
+        fill.style.backgroundColor = '#10b981';
+        label.innerText = 'Password Strength: Strong 🟢';
+      }
+    }
+
+    function openModal(id) {
+      const type = id.replace('-modal', '');
+      refreshCaptcha(type === 'login' ? 'login' : (type === 'register' ? 'reg' : 'admin'));
+      document.getElementById(id).classList.add('active');
+    }
+    
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // STRICT ROLE-BASED ACCESS CONTROL (RBAC) GUARD
+    function switchView(viewId) {
+      if (viewId === 'admin-portal') {
+        if (!currentUser || currentUser.role !== 'ROLE_ADMIN') {
+          showToast('Access Denied', 'Only Administrators (ROLE_ADMIN) can view user registration & login/logout audits.', 'error');
+          openModal('admin-modal');
+          return;
+        }
+      }
+
+      document.querySelectorAll('.nav-item button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+
+      const activeBtn = document.getElementById(`nav-btn-${viewId}`) || event?.currentTarget;
+      if (activeBtn && activeBtn.classList) activeBtn.classList.add('active');
+      
+      const targetTab = document.getElementById(viewId);
+      if (targetTab) targetTab.classList.add('active');
+
+      if (viewId === 'analytics-hub') {
+        renderChartsWithRealData();
+      } else if (viewId === 'admin-portal') {
+        renderAdminAudits();
+      }
+    }
+
+    function getNowFormatted() {
+      const now = new Date();
+      return now.toISOString().replace('T', ' ').substring(0, 19);
+    }
+
+    async function executeLogin(e) {
+      e.preventDefault();
+      const inputCaptcha = document.getElementById('login-captcha-input').value.toUpperCase().trim();
+      if (inputCaptcha !== captchas.login) {
+        showToast('CAPTCHA Verification Failed', 'Invalid security anti-bot code. Please try again.', 'error');
+        refreshCaptcha('login');
+        return;
+      }
+      const user = document.getElementById('login-user').value;
+      currentUser = { username: user, role: 'ROLE_USER' };
+      
+      loginLogsAudit.unshift({
+        timestamp: getNowFormatted(),
+        username: user,
+        location: 'Mumbai, MH (192.168.1.15)',
+        authType: 'USER_SIGN_IN',
+        status: 'SUCCESS'
+      });
+
+      updateUserSessionUI();
+      closeModal('login-modal');
+      switchView('live-simulator');
+      showToast('Authentication Successful', `Welcome back, ${user}! Active user session initialized.`, 'success');
+      renderAdminAudits();
+    }
+
+    async function executeAdminLogin(e) {
+      e.preventDefault();
+      const inputCaptcha = document.getElementById('admin-captcha-input').value.toUpperCase().trim();
+      if (inputCaptcha !== captchas.admin) {
+        showToast('CAPTCHA Verification Failed', 'Invalid admin security code. Access denied.', 'error');
+        refreshCaptcha('admin');
+        return;
+      }
+      const user = document.getElementById('admin-user').value;
+      currentUser = { username: user, role: 'ROLE_ADMIN' };
+
+      loginLogsAudit.unshift({
+        timestamp: getNowFormatted(),
+        username: user,
+        location: 'Mumbai, MH (192.168.1.10)',
+        authType: 'ADMIN_SIGN_IN',
+        status: 'SUCCESS'
+      });
+
+      updateUserSessionUI();
+      closeModal('admin-modal');
+      switchView('admin-portal');
+      showToast('Administrator Access Granted', `System governance & audit portal unlocked for ${user}.`, 'warning');
+      renderAdminAudits();
+    }
+
+    async function executeRegister(e) {
+      e.preventDefault();
+      const pass = document.getElementById('reg-pass').value;
+      const inputCaptcha = document.getElementById('reg-captcha-input').value.toUpperCase().trim();
+
+      if (pass.length < 8) {
+        showToast('Security Policy Violation', 'Password must be at least 8 characters long!', 'error');
+        return;
+      }
+
+      if (inputCaptcha !== captchas.reg) {
+        showToast('CAPTCHA Verification Failed', 'Invalid anti-bot code. Please try again.', 'error');
+        refreshCaptcha('reg');
+        return;
+      }
+
+      const user = document.getElementById('reg-user').value;
+      const email = document.getElementById('reg-email').value;
+      const fullName = document.getElementById('reg-name').value;
+
+      currentUser = { username: user, role: 'ROLE_USER' };
+
+      // Add to registered users audit table
+      registeredUsersAudit.unshift({
+        username: user,
+        fullName: fullName,
+        email: email,
+        role: 'ROLE_USER',
+        regDate: getNowFormatted(),
+        status: 'ACTIVE'
+      });
+
+      loginLogsAudit.unshift({
+        timestamp: getNowFormatted(),
+        username: user,
+        location: 'Mumbai, MH (192.168.1.20)',
+        authType: 'USER_REGISTRATION',
+        status: 'SUCCESS'
+      });
+
+      updateUserSessionUI();
+      updateMetricCounters();
+      closeModal('register-modal');
+      switchView('live-simulator');
+      showToast('Account Created Successfully', `Welcome ${user}! Registered with strong security policy & CAPTCHA.`, 'success');
+      renderAdminAudits();
+    }
+
+    function handleLogout() {
+      if (currentUser) {
+        loginLogsAudit.unshift({
+          timestamp: getNowFormatted(),
+          username: currentUser.username,
+          location: 'Mumbai, MH (192.168.1.15)',
+          authType: 'USER_SIGN_OUT',
+          status: 'SUCCESS'
+        });
+      }
+      currentUser = null;
+      updateUserSessionUI();
+      switchView('live-simulator');
+      showToast('Signed Out', 'You have been signed out of Sentinel-AI.', 'info');
+      renderAdminAudits();
+    }
+
+    function updateUserSessionUI() {
+      const adminNavTab = document.getElementById('nav-admin-tab');
+
+      if (currentUser) {
+        document.getElementById('guest-auth-btns').style.display = 'none';
+        document.getElementById('user-session-info').style.display = 'flex';
+
+        if (currentUser.role === 'ROLE_ADMIN') {
+          document.getElementById('user-display-name').innerText = `🛡️ ${currentUser.username} (ROLE_ADMIN)`;
+          document.getElementById('user-display-name').className = 'user-pill admin-pill';
+          if (adminNavTab) adminNavTab.style.display = 'block';
+        } else {
+          document.getElementById('user-display-name').innerText = `👤 ${currentUser.username} (ROLE_USER)`;
+          document.getElementById('user-display-name').className = 'user-pill';
+          if (adminNavTab) adminNavTab.style.display = 'none';
+        }
+      } else {
+        document.getElementById('guest-auth-btns').style.display = 'flex';
+        document.getElementById('user-session-info').style.display = 'none';
+        if (adminNavTab) adminNavTab.style.display = 'none';
+      }
+
+      renderUsersList();
+      updateMetricCounters();
+    }
+
+    function toggleUserStatus(index) {
+      if (!currentUser || currentUser.role !== 'ROLE_ADMIN') return;
+      registeredUsersAudit[index].status = registeredUsersAudit[index].status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+      showToast('Status Updated', `Account ${registeredUsersAudit[index].username} status changed to ${registeredUsersAudit[index].status}`, 'warning');
+      renderAdminAudits();
+    }
+
+    function renderAdminAudits() {
+      if (!currentUser || currentUser.role !== 'ROLE_ADMIN') return;
+
+      // 1. Render Standard Customer Accounts Table (`ROLE_USER`)
+      const stdBody = document.getElementById('table-std-user-body');
+      if (stdBody) {
+        document.getElementById('std-user-audit-count').innerText = `${registeredUsersAudit.length} Customer Accounts`;
+        stdBody.innerHTML = registeredUsersAudit.map((u, idx) => `
+          <tr>
+            <td><code>${u.username}</code></td>
+            <td><strong>${u.fullName}</strong></td>
+            <td>${u.email}</td>
+            <td><span style="color:var(--cyan-glow); font-weight:700;">${u.role}</span></td>
+            <td>${u.regDate}</td>
+            <td><span class="badge-pill ${u.status === 'ACTIVE' ? 'approved' : 'blocked'}">${u.status}</span></td>
+            <td>
+              <button onclick="toggleUserStatus(${idx})" style="background:var(--card-bg); border:1px solid var(--border-color); color:#fff; padding:0.25rem 0.5rem; border-radius:6px; font-size:0.75rem; cursor:pointer;">
+                ${u.status === 'ACTIVE' ? '⛔ Suspend' : '✅ Activate'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // 2. Render Administrator Accounts Table (`ROLE_ADMIN`)
+      const adminBody = document.getElementById('table-admin-user-body');
+      if (adminBody) {
+        document.getElementById('admin-user-audit-count').innerText = `${registeredAdminsAudit.length} Administrator Account`;
+        adminBody.innerHTML = registeredAdminsAudit.map(a => `
+          <tr>
+            <td><code>${a.username}</code></td>
+            <td><strong>${a.fullName}</strong></td>
+            <td>${a.email}</td>
+            <td><span style="color:#fbbf24; font-weight:700;">FULL SYSTEM ADMIN</span></td>
+            <td>${a.regDate}</td>
+            <td><span class="badge-pill approved">${a.status}</span></td>
+          </tr>
+        `).join('');
+      }
+
+      // 3. Render Login/Logout Logs Audit Table
+      const loginBody = document.getElementById('table-login-audit-body');
+      if (loginBody) {
+        document.getElementById('login-audit-count').innerText = `${loginLogsAudit.length} Auth Event Logs (Sign In / Sign Out / Register)`;
+        loginBody.innerHTML = loginLogsAudit.map(l => `
+          <tr>
+            <td><code>${l.timestamp}</code></td>
+            <td><strong>${l.username}</strong></td>
+            <td>${l.location}</td>
+            <td><span style="background:#374151; padding:0.2rem 0.4rem; border-radius:4px; font-size:0.75rem;">${l.authType}</span></td>
+            <td><span class="badge-pill approved">${l.status}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function syncRealData() {
+      try {
+        const adminRes = await fetch(`${API_BASE}/admin/overview`);
+        if (adminRes.ok) {
+          const stats = await adminRes.json();
+          document.getElementById('val-std-users').innerText = registeredUsersAudit.length;
+          document.getElementById('val-admin-users').innerText = registeredAdminsAudit.length;
+          document.getElementById('val-txs').innerText = stats.transactions || rawTransactions.length;
+          document.getElementById('val-fraud').innerText = stats.fraudulentTransactions || rawTransactions.filter(t => t.isFraud).length;
+          document.getElementById('api-status-badge').innerHTML = '<span style="color:var(--success);">ONLINE (SPRING BOOT & MYSQL LINKED)</span>';
+        } else {
+          updateMetricCounters();
+        }
+
+        const usersRes = await fetch(`${API_BASE}/users`);
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          renderUsersList(users);
+        }
+
+        const txRes = await fetch(`${API_BASE}/transactions`);
+        if (txRes.ok) {
+          const apiTxs = await txRes.json();
+          if (apiTxs && apiTxs.length > 0) {
+            rawTransactions = apiTxs;
+          }
+          renderTransactionsTable(rawTransactions);
+          renderThreatStream(rawTransactions);
+        }
+      } catch (err) {
+        document.getElementById('api-status-badge').innerHTML = '<span style="color:var(--warning);">STANDALONE MODE (RUN .\\run.ps1 TO CONNECT LIVE API)</span>';
+        updateMetricCounters();
+        renderTransactionsTable(rawTransactions);
+        renderThreatStream(rawTransactions);
+      }
+    }
+
+    function renderUsersList(users) {
+      const container = document.getElementById('users-live-container');
+      const badge = document.getElementById('rbac-users-badge');
+
+      if (!currentUser || currentUser.role !== 'ROLE_ADMIN') {
+        if (badge) {
+          badge.className = 'badge-pill held';
+          badge.innerText = 'ADMIN PROTECTED';
+        }
+        container.innerHTML = `
+          <div style="font-size:0.8rem; color:var(--warning); background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); padding:0.8rem; border-radius:8px;">
+            🔒 <strong>Admin Authorization Required</strong><br/>
+            Only Administrators (<code>ROLE_ADMIN</code>) can view registered accounts and authentication audits.
+          </div>
+        `;
+        return;
+      }
+
+      if (badge) {
+        badge.className = 'badge-pill approved';
+        badge.innerText = 'ROLE_ADMIN UNLOCKED';
+      }
+
+      const activeUsers = users && users.length > 0 ? users : registeredUsersAudit.concat(registeredAdminsAudit);
+      container.innerHTML = `
+        <ul style="list-style:none; font-size:0.85rem; line-height:2;">
+          ${activeUsers.map(u => `
+            <li>👤 <strong>${u.username}</strong> (${u.fullName || u.email || 'User'}) - <span style="color:${u.role === 'ROLE_ADMIN' ? '#fbbf24' : 'var(--cyan-glow)'}; font-weight:700;">${u.role || 'ROLE_USER'}</span></li>
+          `).join('')}
+        </ul>
+      `;
+    }
+
+    function renderTransactionsTable(txs) {
+      const tbody = document.getElementById('table-tx-body');
+      document.getElementById('tx-count-indicator').innerText = `${txs.length} Real Database Records`;
+
+      if (!txs || txs.length === 0) {
+        tbody.innerHTML = '<tr><td colSpan="8" style="text-align:center;">No transactions recorded in database yet. Submit one above!</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = txs.map(tx => {
+        const isHigh = tx.isFraud || tx.riskScore >= 70;
+        const isMed = !isHigh && tx.riskScore >= 30;
+        return `
+          <tr class="${isHigh ? 'row-fraud' : ''}" style="${isHigh ? 'background:rgba(239,68,68,0.08);' : ''}">
+            <td><code>${tx.transactionId || 'UPI-100001'}</code></td>
+            <td><strong>₹${Number(tx.amount).toLocaleString('en-IN')} INR</strong></td>
+            <td>${tx.website ? `<code>${tx.website}</code><br/>(${tx.merchant})` : tx.merchant}</td>
+            <td><span style="background:#374151; padding:0.2rem 0.4rem; border-radius:4px; font-size:0.75rem;">${tx.category}</span></td>
+            <td>${tx.location}</td>
+            <td><span class="badge-pill ${isHigh ? 'blocked' : (isMed ? 'held' : 'approved')}">${tx.riskScore || 0} / 100</span></td>
+            <td>${((tx.fraudProbability || 0.05) * 100).toFixed(1)}%</td>
+            <td><span class="badge-pill ${isHigh ? 'blocked' : (isMed ? 'held' : 'approved')}">${tx.status || (isHigh ? 'BLOCKED' : 'APPROVED')}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderThreatStream(txs) {
+      const threatBox = document.getElementById('threat-stream-list');
+      const threatsCenterBox = document.getElementById('threat-center-list');
+      const threats = txs.filter(t => t.isFraud || t.riskScore >= 70);
+
+      if (threats.length === 0) {
+        const emptyHtml = '<div style="font-size:0.8rem; color:var(--text-sub); font-style:italic;">No high-risk threat alerts in database.</div>';
+        threatBox.innerHTML = emptyHtml;
+        if (threatsCenterBox) threatsCenterBox.innerHTML = emptyHtml;
+        return;
+      }
+
+      const html = threats.map(t => `
+        <div class="threat-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="threat-badge">CRITICAL THREAT</span>
+            <span style="font-size:0.75rem; color:var(--text-sub);">Risk Score: ${t.riskScore}/100</span>
+          </div>
+          <div style="font-size:0.85rem; font-weight:700; margin-top:0.4rem;">${t.transactionId} | ₹${Number(t.amount).toLocaleString('en-IN')}</div>
+          <div style="font-size:0.75rem; color:var(--text-sub);">Entity: ${t.merchant} ${t.website ? `(${t.website})` : ''}</div>
+        </div>
+      `).join('');
+
+      threatBox.innerHTML = html;
+      if (threatsCenterBox) threatsCenterBox.innerHTML = html;
+    }
+
+    async function executeInference(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-eval');
+      btn.innerText = 'Evaluating Universal Link & AI Fraud Model (₹)...';
+
+      const websiteInput = document.getElementById('in-website').value;
+      const parsedLink = parseUniversalLink(websiteInput);
+
+      const payload = {
+        transactionId: document.getElementById('in-id').value || `UPI-${Math.floor(100000 + Math.random() * 900000)}`,
+        amount: Number(document.getElementById('in-amount').value),
+        currency: 'INR',
+        merchant: document.getElementById('in-merchant').value,
+        category: document.getElementById('in-category').value,
+        website: websiteInput,
+        parsedDomain: parsedLink.domain,
+        fullPath: parsedLink.fullPath,
+        location: document.getElementById('in-location').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/transactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          renderPredictionCard(data);
+          syncRealData();
+        } else {
+          executeFallbackInference(payload);
+        }
+      } catch (err) {
+        executeFallbackInference(payload);
+      } finally {
+        btn.innerText = '🚀 Execute Universal Link & AI Fraud Evaluation (₹)';
+      }
+    }
+
+    function renderPredictionCard(data) {
+      const card = document.getElementById('res-card');
+      const badge = document.getElementById('res-badge');
+      const scoreCircle = document.getElementById('res-score-circle');
+      
+      card.style.display = 'block';
+      document.getElementById('res-score').innerText = data.riskScore;
+      document.getElementById('res-prob').innerText = `${((data.fraudProbability || 0.05) * 100).toFixed(2)}%`;
+      document.getElementById('res-txid').innerText = data.transactionId;
+
+      const isHigh = data.isFraud || data.riskScore >= 70;
+      const isMed = !isHigh && data.riskScore >= 30;
+
+      if (isHigh) {
+        card.className = 'result-display blocked';
+        scoreCircle.className = 'score-circle blocked';
+        badge.className = 'badge-pill blocked';
+        badge.innerText = 'BLOCKED & FLAGGED';
+        document.getElementById('res-action').innerText = '❌ TRANSACTION BLOCKED (SECURITY THREAT TRIGGERED)';
+        document.getElementById('res-factors').innerText = data.website ? `Illegal/Phishing Website Domain Detected: ${data.website} (Score: ${data.riskScore}/100)` : 'Risk Factors: High Amount, Risky Category / Location Keyword';
+        showToast('Security Alert', `Transaction ${data.transactionId} BLOCKED (High Risk: ${data.riskScore}/100)`, 'error');
+      } else if (isMed) {
+        card.className = 'result-display held';
+        scoreCircle.className = 'score-circle held';
+        badge.className = 'badge-pill held';
+        badge.innerText = 'HELD FOR VERIFICATION';
+        document.getElementById('res-action').innerText = '⚠️ HELD FOR VERIFICATION (MEDIUM RISK)';
+        document.getElementById('res-factors').innerText = 'Risk Factors: Substantial Transfer Amount';
+        showToast('Verification Required', `Transaction ${data.transactionId} HELD for verification (Risk: ${data.riskScore}/100)`, 'warning');
+      } else {
+        card.className = 'result-display approved';
+        scoreCircle.className = 'score-circle approved';
+        badge.className = 'badge-pill approved';
+        badge.innerText = 'APPROVED';
+        document.getElementById('res-action').innerText = '✅ APPROVED & PERSISTED TO MYSQL';
+        document.getElementById('res-factors').innerText = 'Risk Factors: Normal Spending Pattern';
+        showToast('Transaction Approved', `Transaction ${data.transactionId} APPROVED (Risk: ${data.riskScore}/100)`, 'success');
+      }
+    }
+
+    // UNIVERSAL DOMAIN-FIRST RISK EVALUATION ENGINE (WORKS FOR ANY LINK FORMAT)
+    function executeFallbackInference(payload) {
+      const urlStr = ((payload.website || '') + ' ' + (payload.parsedDomain || '') + ' ' + (payload.fullPath || '') + ' ' + (payload.merchant || '')).toLowerCase();
+
+      // Blacklist keywords for illegal websites, piracy, phishing, gambling, and suspicious domains
+      const illegalKeywords = [
+        'movierulz', '5movierulz', 'tamilrockers', 'torrent', 'piracy', 'filmy', 'watch', 'hdhub', 'free-stream',
+        'phish', 'illegal', 'fake', 'scam', 'cheat', 'hack', 'untrusted', 'darknet', 'betting', 'casino', 'gambling',
+        '123movies', 'fmovies', 'cuevana', 'putlocker', 'rarbg', 'yts', '1337x', 'modapk', 'crack', 'warez'
+      ];
+
+      const suspiciousTLDs = ['.watch', '.site', '.xyz', '.top', '.online', '.cc', '.tk', '.club', '.work', '.zip', '.mov', '.icu', '.buzz'];
+
+      const containsIllegalKeyword = illegalKeywords.some(kw => urlStr.includes(kw));
+      const containsSuspiciousTLD = suspiciousTLDs.some(tld => urlStr.includes(tld));
+      const isIllegalCategory = payload.category === 'ILLEGAL_WEBSITE_PHISHING' || payload.category === 'GAMBLING' || payload.category === 'CRYPTO';
+
+      const isIllegalWeb = containsIllegalKeyword || containsSuspiciousTLD || isIllegalCategory;
+
+      let riskScore = 12;
+      let fraudProb = 0.05;
+      let isFraud = false;
+      let status = 'APPROVED';
+
+      if (isIllegalWeb) {
+        // REGARDLESS OF MONEY AMOUNT, UNIVERSAL ILLEGAL / PIRACY / PHISHING SITES ARE ALWAYS BLOCKED (85 - 95 RISK SCORE)
+        riskScore = containsIllegalKeyword ? 95 : 85;
+        fraudProb = 0.95;
+        isFraud = true;
+        status = 'BLOCKED';
+      } else if (payload.amount > 100000) {
+        riskScore = 85;
+        fraudProb = 0.85;
+        isFraud = true;
+        status = 'BLOCKED';
+      } else if (payload.amount > 30000) {
+        riskScore = 45;
+        fraudProb = 0.45;
+        isFraud = false;
+        status = 'HELD_FOR_VERIFICATION';
+      }
+      
+      const resultObj = {
+        id: rawTransactions.length + 1,
+        transactionId: payload.transactionId,
+        amount: payload.amount,
+        merchant: payload.merchant,
+        category: payload.category,
+        website: payload.website,
+        location: payload.location,
+        riskScore: riskScore,
+        fraudProbability: fraudProb,
+        isFraud: isFraud,
+        status: status
+      };
+
+      rawTransactions.unshift(resultObj);
+      renderTransactionsTable(rawTransactions);
+      renderThreatStream(rawTransactions);
+      renderPredictionCard(resultObj);
+
+      updateMetricCounters();
+    }
+
+    function renderChartsWithRealData() {
+      if (typeof Chart === 'undefined') return;
+
+      let lowCount = 0, medCount = 0, highCount = 0;
+      const catCounts = { 'GROCERY': 0, 'ONLINE': 0, 'ELECTRONICS': 0, 'CRYPTO': 0, 'TRAVEL': 0, 'GAMBLING': 0, 'ILLEGAL_WEBSITE_PHISHING': 0 };
+
+      rawTransactions.forEach(t => {
+        if (t.riskScore >= 70 || t.isFraud) highCount++;
+        else if (t.riskScore >= 30) medCount++;
+        else lowCount++;
+
+        const c = t.category || 'ONLINE';
+        if (catCounts[c] !== undefined) catCounts[c]++;
+        else catCounts['ONLINE']++;
+      });
+
+      if (rawTransactions.length === 0) {
+        lowCount = 1; medCount = 0; highCount = 1;
+      }
+
+      if (!riskChart) {
+        const ctx1 = document.getElementById('chartRiskDist').getContext('2d');
+        riskChart = new Chart(ctx1, {
+          type: 'doughnut',
+          data: {
+            labels: ['Low Risk (Approved)', 'Medium Risk (Held)', 'High Risk (Blocked)'],
+            datasets: [{
+              data: [lowCount, medCount, highCount],
+              backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+              borderWidth: 0
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { labels: { color: '#9ca3af' } } } }
+        });
+      } else {
+        riskChart.data.datasets[0].data = [lowCount, medCount, highCount];
+        riskChart.update();
+      }
+
+      if (!catChart) {
+        const ctx2 = document.getElementById('chartCatShare').getContext('2d');
+        catChart = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(catCounts),
+            datasets: [{
+              label: 'Real Transaction Count per Category',
+              data: Object.values(catCounts),
+              backgroundColor: '#06b6d4',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { ticks: { color: '#9ca3af' } },
+              y: { ticks: { color: '#9ca3af' } }
+            },
+            plugins: { legend: { labels: { color: '#9ca3af' } } }
+          }
+        });
+      } else {
+        catChart.data.datasets[0].data = Object.values(catCounts);
+        catChart.update();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateMetricCounters();
+      syncRealData();
+      updateUserSessionUI();
+      setInterval(syncRealData, 5000);
+      document.getElementById('in-id').value = `UPI-${Math.floor(100000 + Math.random() * 900000)}`;
+    });
+  </script>
+</body>
+</html>

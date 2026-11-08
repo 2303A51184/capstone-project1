@@ -1,0 +1,34 @@
+========================================================================
+ AI FINANCIAL FRAUD DETECTION SYSTEM (SENTINEL-AI)
+ PRODUCTION PLATFORM ARCHITECTURE & ACCESS LINKS
+========================================================================
+
+1. LIVE GITHUB PAGES DEPLOYMENT:
+   - Official Production URL: https://2303a51184.github.io/capstone-project/
+   - GitHub Repository: https://github.com/2303A51184/capstone-project
+
+2. LOCAL ACCESS PORTALS (DIRECT & FASTEST):
+   - Client Portal & Website Scanner: http://localhost:3000/
+   - Dedicated Super Admin Login: http://localhost:3000/admin/login
+   - Super Admin User Activity Monitoring: http://localhost:3000/admin/user-activity
+   - Super Admin Fleet Threat Intelligence: http://localhost:3000/admin/dashboard
+   - Client Dashboard: http://localhost:3000/user/dashboard
+
+3. UNIVERSAL PUBLIC WEB TUNNEL:
+   - Public Tunnel URL: https://beige-actors-travel.loca.lt
+   - Dedicated Admin Login URL: https://beige-actors-travel.loca.lt/admin/login
+   - User Activity Route: https://beige-actors-travel.loca.lt/admin/user-activity
+   - Tunnel Endpoint IP / Password: 103.57.133.147
+
+4. DEDICATED SUPER ADMIN CREDENTIALS:
+   - Username: admin (or admin@sentinel.security)
+   - Password: admin (or admin123)
+   - Role: ROLE_ADMIN (Single authorized Super Admin)
+   - Super Admin Portal: /admin/login
+
+4. CSV EXPORT CAPABILITIES:
+   - Transactions Audit Ledger CSV: Instant download via "Export Transactions CSV"
+   - Website Threat Scans CSV: Instant download via "Export Scans CSV"
+   - User Activity Telemetry CSV: Instant download via "Export Users CSV" in User Activity page
+
+========================================================================

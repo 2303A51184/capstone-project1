@@ -1,0 +1,65 @@
+================================================================================
+SENTINEL-AI: AI-POWERED WEBSITE TRUST & FRAUD DETECTION SYSTEM
+================================================================================
+8-Credit Final Year Capstone Project — Phase-1 Official Progress Report
+Department of Computer Science & Engineering
+Academic Year: 2025 – 2026
+Team Members:
+  1. B. Sai Tejaswi (Team Lead & AI/ML Engineer)
+  2. Sharanya (Backend & Security Engineer)
+  3. Priya (Frontend UI/UX Engineer)
+  4. Harshini (Database Architect & QA Specialist)
+
+Currency Standard: Indian Rupee (₹ / INR)
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+This progress report documents the Phase-1 accomplishments of our 4-member capstone team — B. Sai Tejaswi, Sharanya, Priya, and Harshini — for the project "SENTINEL-AI: AI-Powered Website Trust & Fraud Detection System".
+
+In Phase 1, our team successfully built the foundational system architecture, normalized 3NF MySQL relational database, Spring Boot REST API framework, Python Flask AI prediction microservice, and React single-page user interface.
+
+A working end-to-end prototype has been verified: financial transactions submitted through the React frontend are validated by Spring Boot, evaluated by the Python Flask AI service to assign a fraud probability and a normalized risk score (0–100), persisted into MySQL, and displayed live on the admin dashboard.
+
+--------------------------------------------------------------------------------
+2. TEAM COMPOSITION & TASK ALLOCATION (WHO DID WHAT)
+--------------------------------------------------------------------------------
+1. B. SAI TEJASWI — Team Lead & AI/ML Engineer
+- Assigned Subsystem: AI Inference Microservice (ai_service/)
+- Accomplishments:
+  * Created Python Flask microservice (app.py) with REST endpoint POST /predict and GET /health.
+  * Formulated the risk scoring engine transforming raw ML fraud probability into a normalized 0–100 integer risk score.
+  * Designed training workflow using synthetic dataset (10,000+ records) with XGBoost, Random Forest, and SMOTE class balancing.
+
+2. SHARANYA — Backend & Security Engineer
+- Assigned Subsystem: Spring Boot REST Backend (backend/)
+- Accomplishments:
+  * Configured Spring Boot 3 Maven project (pom.xml) with Spring Web, Data JPA, Security, JJWT, and MySQL dependencies.
+  * Created JPA object-relational domain models User.java and Transaction.java.
+  * Implemented REST Controllers AuthController.java, TransactionController.java, AdminController.java, HealthController.java, and security policies.
+
+3. PRIYA — Frontend UI/UX Engineer
+- Assigned Subsystem: React SPA Web Application (frontend/)
+- Accomplishments:
+  * Built single-page React UI (frontend/src/App.js) with responsive design layout.
+  * Developed Registration Form, Transaction Creation Form, and Admin Overview stat cards.
+  * Connected UI forms to Spring Boot endpoints using Axios async calls, rendering dynamic risk status badges and real-time transaction tables in ₹ INR.
+
+4. HARSHINI — Database Architect & Technical Documentation Specialist
+- Assigned Subsystem: MySQL Database & Technical Docs (database/, docs/)
+- Accomplishments:
+  * Authored 3NF MySQL database script (database/schema.sql) creating users and transactions tables with AUTO_INCREMENT keys and foreign keys.
+  * Authored Software Requirements Specification (docs/srs.md) following IEEE 830 standard.
+  * Documented REST API contracts (docs/api-documentation.md) and created test case matrix (docs/test-cases.md).
+
+--------------------------------------------------------------------------------
+3. SYSTEM ARCHITECTURE & DATA FLOW
+--------------------------------------------------------------------------------
+[ Frontend Layer ] React.js SPA (Port 3000)
+    |  HTTP REST Requests (JSON)
+    v
+[ Backend Layer ] Spring Boot REST API (Port 8080)
+    |  HTTP POST (Feature Payload)           |  JPA / SQL
+    v                                        v
+[ AI Service ] Flask Microservice (Port 5000)   [ Database ] MySQL 8.0 Engine
+================================================================================

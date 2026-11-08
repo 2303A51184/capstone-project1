@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+frontend/node_modules/
+backend/target/
+.vscode/
+scratch/
+*.log
+0
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.pdf
+.vercel/
